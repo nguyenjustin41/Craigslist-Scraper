@@ -3,11 +3,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-import time
 import os
 import smtplib
 from email.message import EmailMessage
-
 
 # Set Options for headless mode to be true
 options = Options()
@@ -22,32 +20,28 @@ DRIVER_PATH = "C:\\Webdrivers\\chromedriver"
 # URL to go web scrape
 BASE_URL = 'https://losangeles.craigslist.org'
 
-# To switch between filtering specific keywords vs just 10 of the most recent items with no specific search
+''' 
+To switch between filtering specific keywords vs just num of the most recent items with no specific filter 
+you can just replace the SEARCH with the following code:
+'''
     # 
     # NUM_STR = '10'
     # SEARCH = NUM_STR + ' Most Recent'
     # keyword that we will filter out
     # 
-# To search only a specific keyword
+
+# Search Query
 SEARCH = "tools"
 
-# creating a webdriver object taking arguments for options and path
-# driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
 
-# ChromeDriverManager().Install() installs the latest webdriver so you don't run into compatibility issues
-# if your google chrome updates on your machine
+# Attempts to installs the latest webdriver so you don't run into compatibility issues while setting up chromedriver
 driver= webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
 # Opens up the craigslist free page
 driver.get(BASE_URL + '/search/zip')
 
-# holds the total posts
 total_Posts = []
 filtered_Posts = []
-
-# I used start and end to determine how fast the program can iterate and scrape each page compared to the Recursive way 
-# The iterative while loop was faster so that's why the recursive way got commented out below
-# start = time.time()
 
 # paginate through the 'next page' anchor tag until anchor tag is None 
 while (True):
@@ -63,34 +57,30 @@ while (True):
     pageLink = nextPage.get('href')
     # open craigslist website with nextpage href
     driver.get(BASE_URL + pageLink)
-# end = time.time()
    
-# This is an alternative way to loop over 
+# put the keyword filtered posts into an array 
 filtered_Posts = [post for post in total_Posts if SEARCH.lower() in post.find('a', class_='result-title').get_text().lower()]
 
 
 # iterate over every post element and scrape the title, Date/Time, and URL 
 def outputResults(posts):
-    # You can use this extra array if you want to filter by specific # of elements before sending
-    # before_Final_Result = []  
     
     # holds all scraped results
     final_Result = []
   
     # tells me how many posts were scraped out of ALL posts on craigslist free
     print(f"--{len(posts)} {SEARCH} scraped out of {len(total_Posts)} posts.")
+
     # enumerate/loop over every post and collect the post title, post url, and post time (w.o microseconds)
     for i, post in enumerate(posts):
         titleDiv = post.find('a', class_='result-title')
         postTitle = titleDiv.get_text() 
         postURL = titleDiv.get('href')
         postTimeText = post.find('time').get('datetime')
-        # formatted as: 2021-01-14 08:44
-        # strptime converts string to datetime
+
+        # formats the date as: 2021-01-14 08:44
         postTime = datetime.strptime(postTimeText, '%Y-%m-%d %H:%M')
-        
         dtNow = datetime.now() 
-        # subtracts microseconds from the sent time
         x = dtNow - timedelta(microseconds=dtNow.microsecond)
         ellapsedTime = (x - postTime)
 
@@ -101,15 +91,7 @@ def outputResults(posts):
     # if before_Final_Result array scrapes 0 results
     if len(final_Result) == 0:
         no_results = ['No Matching Results']
-        return no_results
-    
-    # if you want to filter the to a hardcoded # of items you can append into the before_Final_Result array first
-    # and then append the # of elements to the final_Result using this code below
-    # make sure you also change the final_Result.append(f'> {postTitle} \n  {ellapsedTime}  \n {postURL}\n \n') to
-    # before_Final_Result.append(f'> {postTitle} \n  {ellapsedTime}  \n {postURL}\n \n'), then uncomment the line below to configure
-    # else:
-    #     for i in range(3):
-    #         final_Result.append(before_Final_Result[i])             
+        return no_results  
     
     return final_Result
 
@@ -118,18 +100,19 @@ def listtoString(s):
     str1 = ""
     return str1.join(s)
 
-# CHANGE argument to filtered_Posts for a filtered search result
-# CHANGE argument to total_Posts for a list of most recent general things
+'''
+CHANGE argument to filtered_Posts for a filtered search result
+CHANGE argument to total_Posts for a list of most recent general things
+'''
 final_Result_Array = outputResults(filtered_Posts)
 
-# convert from list to string
+# convert from list to string because we are sending it out as a string in email sender portion
 final_Result_String = listtoString(final_Result_Array)
 
 print(final_Result_String)
 
 driver.quit()
 
-# Hides the emails and password that I will be sending the free items to
 EMAIL_ADDRESS = os.environ.get('EMAIL_USER')
 EMAIL_ADDRESS2 = os.environ.get('EMAIL_USER2')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')
@@ -141,16 +124,17 @@ print(EMAIL_ADDRESS2)
 
 # function that creates the email and sends it using smtpblib 
 def send_mail():
+
+    # check if there is 0 matching results to not send the email
     if final_Result_String == 'No Matching Results':
         print('Email not sent')
         return 
-    # creating the actual email message
+    # sends the email content
     msg = EmailMessage()
     msg['Subject'] = f'{SEARCH} Scraped'
     msg['From'] = EMAIL_ADDRESS
     msg['To'] = recipients
     msg.set_content(final_Result_String)
-
 
     # open a file object that reads, then closes automatically (with as statement) 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
@@ -165,7 +149,9 @@ send_mail()
 
 
 
-# Alternative pagination on cragislist free using Recursion (the other one used a while loop)
+'''
+Alternative way to paginate on cragislist free using Recursion instead of iterative approach
+'''
 
 # start = time.time()
 #  def stepThroughPages(posts, pageLink):
@@ -188,4 +174,3 @@ send_mail()
 #  print(f"runtime: {end - start}")
 #  print(len(totalPosts))
 # """
-
