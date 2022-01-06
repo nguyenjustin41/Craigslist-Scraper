@@ -1,8 +1,9 @@
-NOTICE: THIS SCRIPT WAS FOR EDUCATIONAL PURPOSES ONLY. ALWAYS READ THE SITEOWNER'S ROBOT.TXT FILES FOR PERMISSION TO SCRAPE ON ANY WEBSITE
+NOTICE: THIS SCRIPT IS FOR EDUCATIONAL PURPOSES ONLY. 
+ALWAYS READ ROBOT.TXT FILES FOR PERMISSION TO WEBSCRAPE ON ANY WEBSITE
 
 How this webscraper is used:
 
-By pairing this script with a script runner such as Windows Task Scheduler this script can be used to webscrape Craigslist postings which includes: post title, post link, and hours posted.
+By pairing this script with a script runner such as Windows Task Scheduler this script can be used to webscrape Craigslist postings which includes: post title, post link, and hours posted. The main dependencies include Selenium and Beautifulsoup4.  
 
 Because these Craigslist postings can go very quickly (esp. free item postings) this webscraper can be used as a way to notify via email address a specific searched item by title. 
 
