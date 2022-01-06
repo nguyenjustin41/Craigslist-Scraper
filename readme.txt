@@ -1,10 +1,16 @@
-By pairing this script with Windows Task Scheduler (tool to automatically run scripts) the main.py script can be used to run X hours indefinitely to scrape your desired craigslist posts.
+NOTICE: THIS SCRIPT WAS FOR EDUCATIONAL PURPOSES ONLY. ALWAYS READ THE SITEOWNER'S ROBOT.TXT FILES FOR PERMISSION TO SCRAPE ON ANY WEBSITE
 
-The purpose of this web scraper is to give you the latest email updates on a particular item that you want from the Craigslist Free section. Because these listings dissapear very quickly (because its free) this webscraper will help notify you via email along with the time the post was last made. 
+How this webscraper is used:
 
-This was a creative way to get introduced to web scraping on python as well as learn how to mine data websites. 
+By pairing this script with a script runner such as Windows Task Scheduler this script can be used to webscrape Craigslist postings which includes: post title, post link, and hours posted.
 
-This script is for educational purposes only.
+Because these Craigslist postings can go very quickly (esp. free item postings) this webscraper can be used as a way to notify via email address a specific searched item by title. 
+
+This script can also be used for any other category in Craigslists.
+After scraping the data main.py uses smtplib to send automated email updates to a particular item.
+
+Conclusion:
+This was a cool and creative way to get introduced to web scraping on Python as well as learn how to data websites. 
 
 Dependencies:
 Python 3.8.6
